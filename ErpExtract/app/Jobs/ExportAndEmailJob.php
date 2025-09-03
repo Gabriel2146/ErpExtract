@@ -60,6 +60,18 @@ class ExportAndEmailJob implements ShouldQueue
                 ->attach($zipFilename);
         });
 
+        // Crear notificación para el usuario
+        $user = \App\Models\User::where('email', $this->userEmail)->first();
+        if ($user) {
+            \App\Models\SystemNotification::create([
+                'id' => (string) \Illuminate\Support\Str::uuid(),
+                'title' => 'Exportación completada',
+                'message' => "La exportación de la tabla {$this->tablaCodigo} ha finalizado. Se ha enviado un correo electrónico con el archivo adjunto.",
+                'user_id' => $user->id,
+                'url' => '/consulta-tabla', // URL para redirigir al usuario
+            ]);
+        }
+
         // Eliminar Excel temporal si quieres
         @unlink($excelPath);
     }

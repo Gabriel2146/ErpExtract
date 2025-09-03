@@ -58,6 +58,11 @@
           "url": "/tablas",
           "name": "Tablas",
           "slug": "tablas"
+        },
+        {
+          "url": "/emails",
+          "name": "Emails",
+          "slug": "emails"
         }
       ]
     },

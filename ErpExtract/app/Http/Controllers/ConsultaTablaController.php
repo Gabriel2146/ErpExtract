@@ -108,6 +108,7 @@ class ConsultaTablaController extends Controller
     public function exportaTabla(Request $request, $tablaId)
     {
         $ambienteId = $request->get('ambienteId');
+        $email = $request->get('email') ?? Auth::user()->email; // Usar email seleccionado o el del usuario
         $ambiente = Ambiente::findOrFail($ambienteId);
         $tabla = Tabla::findOrFail($tablaId);
         $top = 1000; // puedes ajustar según tu necesidad
@@ -119,7 +120,7 @@ class ConsultaTablaController extends Controller
         $username = Auth::user()->username ?? 'USUARIO';
 
         // Obtener datos de OData
-        $$response = Http::timeout(30) // 30 segundos
+        $response = Http::timeout(30) // 30 segundos
             ->withBasicAuth($ambiente->usuario, $ambiente->clave)
             ->withoutVerifying() // Ignora SSL (solo si es certificado autofirmado)
             ->get($ambiente->servidor . $ambiente->ruta . $tabla->cds . $tabla->entity_type, [
@@ -144,7 +145,7 @@ class ConsultaTablaController extends Controller
         $headings = $data[0] ? array_keys($data[0]) : [];
 
         // Despachar Job
-        ExportAndEmailJob::dispatch($data, $headings, Auth::user()->email, $tablaCodigo, $username);
+        ExportAndEmailJob::dispatch($data, $headings, $email, $tablaCodigo, $username);
 
         return response()->json(['message' => 'Exportación en proceso. Recibirá un correo cuando finalice.']);
     }

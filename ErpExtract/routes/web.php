@@ -148,6 +148,18 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/api/exporta-tabla/{tablaId}', [ConsultaTablaController::class, 'exportaTabla']);
 });
 
+// -----------------------------
+// Configuración - Emails
+// -----------------------------
+Route::middleware(['auth'])->group(function () {
+    Route::get('/emails', [App\Http\Controllers\EmailController::class, 'index'])->name('emails.index');
+    Route::get('/emails/create', [App\Http\Controllers\EmailController::class, 'create'])->name('emails.create');
+    Route::post('/emails', [App\Http\Controllers\EmailController::class, 'store'])->name('emails.store');
+    Route::get('/emails/{email}/edit', [App\Http\Controllers\EmailController::class, 'edit'])->name('emails.edit');
+    Route::put('/emails/{email}', [App\Http\Controllers\EmailController::class, 'update'])->name('emails.update');
+    Route::delete('/emails/{email}', [App\Http\Controllers\EmailController::class, 'destroy'])->name('emails.destroy');
+});
+
 Route::get('/campos', [CampoConfigController::class, 'index'])->name('campos');
 Route::post('/configuracion-campos/store', [CampoConfigController::class, 'store'])->name('campos.store');
 Route::get('/tablas-por-modulo/{moduloId}', [CampoConfigController::class, 'tablasPorModulo']);

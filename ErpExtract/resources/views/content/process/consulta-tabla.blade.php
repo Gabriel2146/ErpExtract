@@ -32,7 +32,7 @@
                 </button>
             </div>
             <div class="col-md-4 d-flex align-items-end">
-                <button id="btnEjecutarFondo" class="btn btn-primary w-100" disabled>
+                <button id="btnEjecutarFondo" class="btn btn-primary w-100" disabled data-bs-toggle="modal" data-bs-target="#emailModal">
                     <i class="bx bx-run me-1"></i> Ejecutar de fondo
                 </button>
             </div>
@@ -55,6 +55,35 @@
                     <!-- Se llena dinámicamente -->
                 </tbody>
             </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para selección de email -->
+<div class="modal fade" id="emailModal" tabindex="-1" aria-labelledby="emailModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="emailModalLabel">Seleccionar Email para Exportación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="emailForm">
+                    <div class="mb-3">
+                        <label for="selectEmail" class="form-label">Email de destino</label>
+                        <select id="selectEmail" class="form-select" required>
+                            <option value="">-- Seleccione un email --</option>
+                            @foreach(\App\Models\Email::all() as $email)
+                            <option value="{{ $email->email }}">{{ $email->name }} ({{ $email->email }})</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btnConfirmarExportacion">Iniciar Exportación</button>
+            </div>
         </div>
     </div>
 </div>
@@ -143,10 +172,20 @@
             });
         });
 
-        $btnEjecutarFondo.click(function() {
+        // Confirmar exportación desde modal
+        $('#btnConfirmarExportacion').click(function() {
+            let selectedEmail = $('#selectEmail').val();
+            if (!selectedEmail) {
+                alert('Por favor seleccione un email.');
+                return;
+            }
+
             let ambienteId = $selectAmbiente.val();
             let tablaId = $selectTabla.val();
             if (!ambienteId || !tablaId) return;
+
+            // Cerrar modal
+            $('#emailModal').modal('hide');
 
             $loader.show();
             $thead.empty();
@@ -154,6 +193,7 @@
 
             $.getJSON('/api/exporta-tabla/' + tablaId, {
                 ambienteId: ambienteId,
+                email: selectedEmail,
                 top: 0,
                 skip: 0
             }, function(response) {
